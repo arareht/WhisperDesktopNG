@@ -1,7 +1,3 @@
-# AIGC
-GEMINI.md
-Docs/implementation/aigc_*.md
-
 .vs/
 ComLightLib/x64/
 Whisper/x64/
@@ -26,37 +22,3 @@ WhisperPS/obj/
 WhisperPS/bin/
 Tools/CompressTables/bin/
 Tools/CompressTables/obj/
-
-# Temporary downloads and extracted files
-temp_downloads/
-whisper.cpp-*/
-whisper-cpp-*/
-*.zip
-*.tar.gz
-*.tar.bz2
-
-# Build artifacts
-build_*/
-bin/
-obj/
-
-# Temporary files
-*.tmp
-*.temp
-*.log
-
-# Test models and benchmark results
-Tests/Models/*.bin
-benchmark_results_*.csv
-
-# GGML build artifacts
-GGML/x64/
-Tests/*/x64/
-
-# Visual Studio temporary files
-*.tlog
-*.idb
-*.pdb
-*.ilk
-*.exp
-*.lib.recipe

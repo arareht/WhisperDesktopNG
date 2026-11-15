@@ -90,6 +90,36 @@ void MlContext::mulMatMad( const Tensor& a, const Tensor& b, Tensor& res )
 	context()->Dispatch( b.ne[ 1 ], b.ne[ 2 ], b.ne[ 3 ] );
 }
 
+namespace
+{
+	// Map a (possibly quantized) weight type to the matmul shader that reads it.
+	// Non-quant types return the ordinary fp16/fp32 shader.
+	eComputeShader quantTiledShader( eDataType t )
+	{
+		switch( t )
+		{
+		case eDataType::Q5_0: return eComputeShader::mulMatTiledQ5;
+		case eDataType::Q8_0: return eComputeShader::mulMatTiledQ8;
+		case eDataType::Q4_0: return eComputeShader::mulMatTiledQ40;
+		case eDataType::Q4_1: return eComputeShader::mulMatTiledQ41;
+		case eDataType::Q5_1: return eComputeShader::mulMatTiledQ51;
+		default: return eComputeShader::mulMatTiled;
+		}
+	}
+	eComputeShader quantByRowTiledShader( eDataType t )
+	{
+		switch( t )
+		{
+		case eDataType::Q5_0: return eComputeShader::mulMatByRowTiledQ5;
+		case eDataType::Q8_0: return eComputeShader::mulMatByRowTiledQ8;
+		case eDataType::Q4_0: return eComputeShader::mulMatByRowTiledQ40;
+		case eDataType::Q4_1: return eComputeShader::mulMatByRowTiledQ41;
+		case eDataType::Q5_1: return eComputeShader::mulMatByRowTiledQ51;
+		default: return eComputeShader::mulMatByRowTiled;
+		}
+	}
+}
+
 void MlContext::mulMatTiled( const Tensor& a, const Tensor& b, Tensor& res )
 {
 	cb.update( a, b, res );
@@ -97,6 +127,11 @@ void MlContext::mulMatTiled( const Tensor& a, const Tensor& b, Tensor& res )
 
 	Binder bind;
 	bind.bind( a, b, res );
+
+	// When the weight (a) is block-quantized, dispatch the native-dequant shader variant.
+	// The R32_UINT SRV binds to the shader's Buffer<uint> arg0; addressing is identical.
+	const eDataType at = a.getType();
+	const bool quant = isQuantized( at );
 
 	if( b.ne[ 1 ] == 1 )
 	{
@@ -111,12 +146,14 @@ void MlContext::mulMatTiled( const Tensor& a, const Tensor& b, Tensor& res )
 			constexpr uint32_t minHeightToTile = 2;
 			if( a.ne[ 1 ] < minHeightToTile )
 			{
+				// Degenerate 1-output-row weight: doesn't occur for real quantized weights.
+				assert( !quant );
 				bindShader( eComputeShader::mulMatByRow );
 				context()->Dispatch( a.ne[ 1 ], a.ne[ 2 ], a.ne[ 3 ] );
 			}
 			else
 			{
-				bindShader( eComputeShader::mulMatByRowTiled );
+				bindShader( quant ? quantByRowTiledShader( at ) : eComputeShader::mulMatByRowTiled );
 				constexpr uint32_t TILE_Y = 64;
 				const uint32_t groupsX = ( a.ne[ 1 ] + TILE_Y - 1 ) / TILE_Y;
 				context()->Dispatch( groupsX, a.ne[ 2 ], a.ne[ 3 ] );
@@ -125,6 +162,7 @@ void MlContext::mulMatTiled( const Tensor& a, const Tensor& b, Tensor& res )
 		else
 		{
 			// Tensor B is a single element: we have an optimized shader for that as well
+			assert( !quant );
 			bindShader( eComputeShader::mulMatByScalar );
 			context()->Dispatch( a.ne[ 2 ], a.ne[ 3 ], 1 );
 		}
@@ -135,7 +173,7 @@ void MlContext::mulMatTiled( const Tensor& a, const Tensor& b, Tensor& res )
 		// Assuming both arguments are 2D matrices.
 		// For optimal VRAM bandwidth utilization, we compute such matrix products in square tiles, a tile is 32x32 elements.
 		// Dispatching one thread group for each tile of the output matrix.
-		bindShader( eComputeShader::mulMatTiled );
+		bindShader( quant ? quantTiledShader( at ) : eComputeShader::mulMatTiled );
 
 		// These compute shaders correctly handle partial tiles on the right and bottom edges of the output matrix, that's why rounding up
 		constexpr uint32_t TILE_SIZE = 32;
@@ -680,6 +718,9 @@ Tensor MlContext::mulMatTiledEx( const Tensor& a, const Tensor& b )
 
 	if( !canMulMat( a, b ) )
 		throw E_INVALIDARG;	// Wrong size
+	// Quantized weights aren't reshaped into panels — fall back to the plain native-quant path.
+	if( isQuantized( a.getType() ) )
+		return mulMat( a, b );
 	if( 0 != ( a.nb[ 0 ] | b.nb[ 0 ] ) )
 		throw E_INVALIDARG;	// Both tensors are expected to be pre-transposed into these panels
 
@@ -705,6 +746,10 @@ Tensor MlContext::mulMatByRowTiledEx( const Tensor& a, const Tensor& b )
 	constexpr uint32_t TILE_SIZE = ReshapedMultiply::TILE_SIZE;
 	assert( canMulMat( a, b ) );
 	assert( b.ne[ 1 ] == 1 );
+
+	// Quantized weights aren't reshaped into panels — fall back to the plain native-quant path.
+	if( isQuantized( a.getType() ) )
+		return mulMat( a, b );
 
 	Tensor res = createTensor( eDataType::FP32, { a.ne[ 1 ], 1, a.ne[ 2 ], b.ne[ 3 ] } );
 

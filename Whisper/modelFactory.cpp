@@ -18,5 +18,3 @@ HRESULT COMLIGHTCALL Whisper::loadModel( const wchar_t* path, const sModelSetup&
 	logError( u8"Unknown model implementation 0x%X", (int)setup.impl );
 	return E_INVALIDARG;
 }
-
-// Note: loadReferenceCpuModel is implemented in whisperCom.cpp

@@ -1,18 +1,16 @@
 #include "stdafx.h"
 #include "enums.h"
 
-static const alignas( 16 ) std::array<DXGI_FORMAT, 6> s_tensorViewFormats = {
-	DXGI_FORMAT_R16_FLOAT,		// FP16
-	DXGI_FORMAT_R32_FLOAT,		// FP32
-	DXGI_FORMAT_R32_UINT,		// U32
-	DXGI_FORMAT_R8_UINT,		// Q4_0 - use byte format for quantized data
-	DXGI_FORMAT_R8_UINT,		// Q5_1 - use byte format for quantized data
-	DXGI_FORMAT_R8_UINT,		// Q8_0 - use byte format for quantized data
+// Indexed by (uint8_t)eDataType: FP16, FP32, U32, Q5_0, Q8_0, Q4_0, Q4_1, Q5_1.
+// Quantized weights are stored as a raw R32_UINT buffer and dequantized in-shader.
+static const alignas( 16 ) std::array<DXGI_FORMAT, 8> s_tensorViewFormats =
+{
+	DXGI_FORMAT_R16_FLOAT, DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32_UINT,
+	DXGI_FORMAT_R32_UINT, DXGI_FORMAT_R32_UINT, DXGI_FORMAT_R32_UINT,
+	DXGI_FORMAT_R32_UINT, DXGI_FORMAT_R32_UINT
 };
 
 DXGI_FORMAT DirectCompute::viewFormat( eDataType dt )
 {
-	const uint8_t index = (uint8_t)dt;
-	assert( index < s_tensorViewFormats.size() );
-	return s_tensorViewFormats[ index ];
+	return s_tensorViewFormats[ (uint8_t)dt ];
 }

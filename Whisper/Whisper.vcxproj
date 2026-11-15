@@ -44,10 +44,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);$(SolutionDir)GGML\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir);$(SolutionDir)GGML\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -89,16 +89,11 @@
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>whisper.def</ModuleDefinitionFile>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-      <AdditionalOptions>/VERBOSE %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="..\ComLightLib\ComLightLib.vcxproj">
       <Project>{52f486e7-830c-45d8-be47-e76b5aab2772}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\GGML\GGML.vcxproj">
-      <Project>{B12702AD-ABFB-343A-A199-8E24837244A3}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -175,7 +170,6 @@
     <ClCompile Include="source.compat\ggmlMsvc.c">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
-      <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Whisper\ContextImpl.misc.cpp" />
     <ClCompile Include="Utils\ProfileCollection.cpp" />
@@ -188,12 +182,13 @@
     <ClCompile Include="Whisper\ModelImpl.cpp" />
     <ClCompile Include="Utils\parallelFor.cpp" />
     <ClCompile Include="Whisper\Spectrogram.cpp" />
+    <ClCompile Include="Whisper\ggmlQuants.cpp" />
+    <ClCompile Include="Whisper\ggufFile.cpp" />
     <ClCompile Include="Whisper\WhisperModel.cpp" />
     <ClCompile Include="Whisper\Vocabulary.cpp" />
     <ClCompile Include="Whisper\DecoderResultBuffer.cpp" />
     <ClCompile Include="Whisper\DecoderInputBuffers.cpp" />
     <ClCompile Include="ML\mlUtils.cpp" />
-    <ClCompile Include="ML\QuantizationOps.cpp" />
     <ClCompile Include="Whisper\KeyValueBuffers.cpp" />
     <ClCompile Include="D3D\Binder.cpp" />
     <ClCompile Include="ML\LookupTables.cpp" />
@@ -216,7 +211,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="source\whisper.cpp" />
+    <ClCompile Include="source\whisper.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="ML\TempBuffers.cpp" />
     <ClCompile Include="ML\tensorOpsTests.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -306,6 +304,8 @@
     <ClInclude Include="Utils\parallelFor.h" />
     <ClInclude Include="Whisper\Spectrogram.h" />
     <ClInclude Include="Whisper\loaderUtils.h" />
+    <ClInclude Include="Whisper\ggmlQuants.h" />
+    <ClInclude Include="Whisper\ggufFile.h" />
     <ClInclude Include="Whisper\WhisperModel.h" />
     <ClInclude Include="Whisper\Vocabulary.h" />
     <ClInclude Include="Whisper\DecoderResultBuffer.h" />

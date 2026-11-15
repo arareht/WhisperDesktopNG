@@ -186,12 +186,22 @@
     <FxCompile Include="mulMatByRow64.hlsl" />
     <FxCompile Include="mulMatByRowTiled.hlsl" />
     <FxCompile Include="mulMatByRowTiledEx.hlsl" />
+    <FxCompile Include="mulMatByRowTiledQ5.hlsl" />
+    <FxCompile Include="mulMatByRowTiledQ8.hlsl" />
+    <FxCompile Include="mulMatByRowTiledQ40.hlsl" />
+    <FxCompile Include="mulMatByRowTiledQ41.hlsl" />
+    <FxCompile Include="mulMatByRowTiledQ51.hlsl" />
     <FxCompile Include="mulMatByScalar.hlsl" />
     <FxCompile Include="mulMatDotMain.hlsl" />
     <FxCompile Include="mulMatDotReshape.hlsl" />
     <FxCompile Include="mulMatMadMain.hlsl" />
     <FxCompile Include="mulMatTiled.hlsl" />
     <FxCompile Include="mulMatTiledEx.hlsl" />
+    <FxCompile Include="mulMatTiledQ5.hlsl" />
+    <FxCompile Include="mulMatTiledQ8.hlsl" />
+    <FxCompile Include="mulMatTiledQ40.hlsl" />
+    <FxCompile Include="mulMatTiledQ41.hlsl" />
+    <FxCompile Include="mulMatTiledQ51.hlsl" />
     <FxCompile Include="norm.hlsl" />
     <FxCompile Include="normCompat.hlsl" />
     <FxCompile Include="normFixed.hlsl" />
@@ -203,15 +213,12 @@
     <FxCompile Include="softMaxFixed.hlsl" />
     <FxCompile Include="softMaxLong.hlsl" />
     <FxCompile Include="zeroMemory.hlsl" />
-    <FxCompile Include="dequantizeQ4_0.hlsl" />
-    <FxCompile Include="dequantizeQ5_1.hlsl" />
-    <FxCompile Include="dequantizeQ8_0.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="componentwiseBinaryOp.hlsli" />
+    <None Include="dequant.hlsli" />
     <None Include="flashAttentionCommon.hlsli" />
     <None Include="fp64Utils.hlsli" />
-    <None Include="ggmlQuantization.hlsli" />
     <None Include="groupReduce.hlsli" />
     <None Include="groupReduce64.hlsli" />
     <None Include="miscUtils.hlsli" />

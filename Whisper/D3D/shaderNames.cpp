@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "shaderNames.h"
 
-static const std::array<const char*, 44> s_shaderNames =
+static const std::array<const char*, 45> s_shaderNames = 
 {
 	"add",
 	"addInPlace",
@@ -30,12 +30,16 @@ static const std::array<const char*, 44> s_shaderNames =
 	"mulMatByRow",
 	"mulMatByRowTiled",
 	"mulMatByRowTiledEx",
+	"mulMatByRowTiledQ5",
+	"mulMatByRowTiledQ8",
 	"mulMatByScalar",
 	"mulMatDotMain",
 	"mulMatDotReshape",
 	"mulMatMadMain",
 	"mulMatTiled",
 	"mulMatTiledEx",
+	"mulMatTiledQ5",
+	"mulMatTiledQ8",
 	"norm",
 	"normCompat",
 	"normFixed",
@@ -45,9 +49,6 @@ static const std::array<const char*, 44> s_shaderNames =
 	"softMaxFixed",
 	"softMaxLong",
 	"zeroMemory",
-	"dequantizeQ4_0",
-	"dequantizeQ5_1",
-	"dequantizeQ8_0",
 };
 
 const char* DirectCompute::computeShaderName( eComputeShader cs )
